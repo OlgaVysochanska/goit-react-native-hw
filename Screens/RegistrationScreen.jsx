@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,8 +11,6 @@ import {
   Platform,
   TouchableWithoutFeedback,
 } from "react-native";
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
 
 const initialState = {
   login: "",
@@ -20,14 +18,11 @@ const initialState = {
   password: "",
 };
 
-export default Registrationscreen = () => {
-  const [fontsLoaded] = useFonts({
-    "Roboto-Regular": require("../assets/fonts/Roboto-Regular.ttf"),
-  });
-
+export default Registrationscreen = ({ navigation }) => {
   const [state, setState] = useState(initialState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [focused, setFocused] = useState("");
+  const [isSecureEntry, setIsSecureEntry] = useState(true);
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
@@ -41,18 +36,9 @@ export default Registrationscreen = () => {
     setState(initialState);
   };
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-  if (!fontsLoaded) {
-    return null;
-  }
-
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
-      <View style={styles.container} onLayout={onLayoutRootView}>
+      <View style={styles.container}>
         <ImageBackground
           style={styles.imageBackground}
           source={require("../assets/background.jpg")}
@@ -63,7 +49,7 @@ export default Registrationscreen = () => {
             <View
               style={{
                 ...styles.formContainer,
-                paddingBottom: !isShowKeyboard ? 80 : 12,
+                paddingBottom: !isShowKeyboard ? 80 : 32,
               }}
             >
               <Text style={styles.title}>Реєстрація</Text>
@@ -71,9 +57,10 @@ export default Registrationscreen = () => {
               <View style={{ marginBottom: 16 }}>
                 <TextInput
                   placeholder="Логін"
-                  value={state.value}
+                  value={state.login}
                   onFocus={() => {
                     setIsShowKeyboard(true);
+                    Keyboard.isVisible();
                     setFocused("login");
                   }}
                   style={{
@@ -81,9 +68,10 @@ export default Registrationscreen = () => {
                     borderColor: focused === "login" ? "#FF6C00" : "#E8E8E8",
                   }}
                   onBlur={() => setFocused("")}
-                  onChangeText={(value) =>
-                    setState((prevState) => ({ ...prevState, login: value }))
-                  }
+                  onChangeText={(value) => {
+                    setState((prevState) => ({ ...prevState, login: value }));
+                    Keyboard.isVisible();
+                  }}
                 />
               </View>
               <View style={{ marginBottom: 16 }}>
@@ -104,7 +92,7 @@ export default Registrationscreen = () => {
                   }
                 />
               </View>
-              <View style={{ marginBottom: 16, position: "relative" }}>
+              <View style={{ position: "relative" }}>
                 <TextInput
                   placeholder="Пароль"
                   value={state.password}
@@ -117,22 +105,39 @@ export default Registrationscreen = () => {
                     borderColor: focused === "password" ? "#FF6C00" : "#E8E8E8",
                   }}
                   onBlur={() => setFocused("false")}
-                  secureTextEntry={true}
+                  secureTextEntry={isSecureEntry}
                   onChangeText={(value) =>
                     setState((prevState) => ({ ...prevState, password: value }))
                   }
                 />
-                <Text style={styles.passwordText}>Показати</Text>
+                <TouchableOpacity
+                  style={styles.passwordTextWrapper}
+                  onPress={() => {
+                    setIsSecureEntry((prevState) => !prevState);
+                  }}
+                >
+                  <Text style={styles.passwordText}>
+                    {isSecureEntry ? "Показати" : "Приховати"}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               <TouchableOpacity
                 activeOpacity={0.7}
                 style={styles.btn}
-                onPress={handleSubmit}
+                onPress={() => {
+                  handleSubmit();
+                  navigation.navigate("Home");
+                }}
               >
                 <Text style={styles.btnTitle}>Зареєструватися</Text>
               </TouchableOpacity>
-              <Text style={styles.signinText}>Уже є аккаунт? Увійти</Text>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => navigation.navigate("Login")}
+              >
+                <Text style={styles.signinText}>Уже є аккаунт? Увійти</Text>
+              </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
         </ImageBackground>
@@ -175,10 +180,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 16,
   },
-  passwordText: {
+  passwordTextWrapper: {
     position: "absolute",
     top: "30%",
     left: "75%",
+  },
+  passwordText: {
     color: "#1B4371",
     fontSize: 16,
     lineHeight: 19,
@@ -186,6 +193,7 @@ const styles = StyleSheet.create({
   btn: {
     height: 50,
     marginHorizontal: 16,
+    marginTop: 43,
     marginBottom: 16,
     borderRadius: 100,
     justifyContent: "center",
