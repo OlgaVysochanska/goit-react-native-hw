@@ -8,10 +8,6 @@ import * as SplashScreen from "expo-splash-screen";
 
 import { useRoute } from "./router";
 
-// import RegistrationScreen from "./Screens/RegistrationScreen";
-// import LoginScreen from "./Screens/LoginScreen";
-// import Home from "./Screens/Home";
-
 export default function App() {
   const routing = useRoute(false);
 

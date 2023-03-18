@@ -3,6 +3,8 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
+import { TouchableOpacity, Image } from "react-native";
+
 const AuthStack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
 
@@ -13,9 +15,9 @@ import PostsScreen from "./Screens/PostsScreen";
 import CreatePostsScreen from "./Screens/CreatePostsScreen";
 import ProfileScreen from "./Screens/ProfileScreen";
 
-// icons import
-// import { MaterialCommunityIcons } from "@expo/vector-icons";
-// import { AntDesign } from "@expo/vector-icons";
+import SvgPosts from "./assets/svg/postsIcon";
+import SvgCreate from "./assets/svg/createIcon";
+import SvgProfile from "./assets/svg/profileIcon";
 
 export const useRoute = (isAuth) => {
   if (!isAuth) {
@@ -51,37 +53,46 @@ export const useRoute = (isAuth) => {
   return (
     <Tabs.Navigator>
       <Tabs.Screen
-        // options={{
-        //   tabBarIcon: ({ focused, size, color }) => (
-        //     <MaterialCommunityIcons
-        //       name="postage-stamp"
-        //       size={size}
-        //       color={color}
-        //     />
-        //   ),
-        // }}
+        options={{
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+          headerRight: () => (
+            <TouchableOpacity
+              style={{ marginRight: 10 }}
+              onPress={() => navigation.navigate("Login")}
+            >
+              <Image
+                source={require("./assets/logOut.jpg")}
+                style={{ width: 24, height: 24 }}
+              />
+            </TouchableOpacity>
+          ),
+
+          tabBarIcon: ({ color, size }) => (
+            <SvgPosts color={color} size={size} />
+          ),
+        }}
         name="Posts"
         component={PostsScreen}
       />
       <Tabs.Screen
-        // options={{
-        //   tabBarIcon: ({ focused, size, color }) => (
-        //     <AntDesign name="pluscircleo" size={35} color={color} />
-        //   ),
-        // }}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <SvgCreate color={color} size={size} />
+          ),
+        }}
         name="Create"
         component={CreatePostsScreen}
       />
       <Tabs.Screen
-        // options={{
-        //   tabBarIcon: ({ focused, size, color }) => (
-        //     <MaterialCommunityIcons
-        //       name="face-profile"
-        //       size={size}
-        //       color={color}
-        //     />
-        //   ),
-        // }}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <SvgProfile color={color} size={size} />
+          ),
+        }}
         name="Profile"
         component={ProfileScreen}
       />
