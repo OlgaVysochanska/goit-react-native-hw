@@ -15,7 +15,7 @@ import SvgProfile from "../assets/svg/profileIcon";
 
 const Tabs = createBottomTabNavigator();
 
-const HomeScreen = ({ navigation }) => {
+const HomeTabs = ({ navigation }) => {
   return (
     <Tabs.Navigator>
       <Tabs.Screen
@@ -80,4 +80,4 @@ const HomeScreen = ({ navigation }) => {
 //   },
 // });
 
-export default HomeScreen;
+export default HomeTabs;

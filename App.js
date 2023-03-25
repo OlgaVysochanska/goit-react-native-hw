@@ -9,7 +9,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useRoute } from "./router";
 
 export default function App() {
-  const routing = useRoute(false);
+  const routing = useRoute(true);
 
   const [fontsLoaded] = useFonts({
     "Roboto-Regular": require("./assets/fonts/Roboto-Regular.ttf"),
