@@ -55,19 +55,33 @@ export const useRoute = (isAuth) => {
   return (
     <MainStack.Navigator>
       <MainStack.Screen
-        name="Posts"
+        name="Home"
         component={HomeTabs}
         options={{ headerShown: false }}
       />
       <MainStack.Screen
         name="Map"
         component={MapScreen}
-        options={{ headerShown: false }}
+        options={{
+          title: "Карта",
+          headerTintColor: "#000",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+        }}
       />
       <MainStack.Screen
         name="Comments"
         component={CommentsScreen}
-        options={{ headerShown: false }}
+        options={{
+          title: "Коментарі",
+          headerTintColor: "#000",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+        }}
       />
     </MainStack.Navigator>
   );

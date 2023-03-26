@@ -25,6 +25,7 @@ const MapScreen = ({ navigation, route }) => {
             longitude,
           }}
           title={photoName}
+          description="Сфотографовано тут"
           pinColor="#FF6C00"
         />
       </MapView>

@@ -9,6 +9,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 
+import SvgMessage from "../assets/svg/messageIcon";
+import SvgMap from "../assets/svg/mapIcon";
+
 const POSTS = [];
 
 export default PostsScreen = ({ navigation, route }) => {
@@ -22,25 +25,30 @@ export default PostsScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.someText}>Тут будуть відображатиись пости</Text>
       <FlatList
         data={posts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={styles.postsContainer}>
             <Image style={styles.photo} source={{ uri: item.photo }} />
-            <Text>{item.photoName}</Text>
+            <Text style={styles.photoName}>{item.photoName}</Text>
             <View style={styles.details}>
-              <TouchableOpacity>
-                <Text>comments</Text>
+              <TouchableOpacity
+                style={{ ...styles.detailsBlock, alignItems: "center" }}
+                // onPress={navigation.navigate("Comments")}
+              >
+                <SvgMessage />
+                <Text styles={{ marginLeft: 5 }}>0</Text>
               </TouchableOpacity>
               <TouchableOpacity
+                style={styles.detailsBlock}
                 onPress={() => {
                   const location = item.location;
                   const photoName = item.photoName;
                   navigation.navigate("Map", { location, photoName });
                 }}
               >
+                <SvgMap />
                 <Text style={styles.location}>{item.photoLocation}</Text>
               </TouchableOpacity>
             </View>
@@ -56,26 +64,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ecf0f1",
   },
-  someText: {
-    color: "#000",
-  },
+
   postsContainer: {
     marginHorizontal: 16,
-    gap: 30,
+    marginBottom: 24,
   },
   photo: {
     width: "100%",
     height: 240,
+    borderRadius: 10,
   },
   photoName: {
+    fontSize: 18,
     fontWeight: "bold",
     marginTop: 8,
   },
   details: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 10,
+  },
+  detailsBlock: {
+    flexDirection: "row",
   },
   location: {
+    fontSize: 16,
+    marginLeft: 5,
     textDecorationLine: "underline",
   },
 });
