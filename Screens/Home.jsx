@@ -1,8 +1,10 @@
 import React from "react";
 import { Image, TouchableOpacity } from "react-native";
+import { useDispatch } from "react-redux";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-// import { Ionicons } from "@expo/vector-icons";
+
+import { authSignOutUser } from "../redux/auth/authOperations";
 
 import PostsScreen from "./PostsScreen";
 import CreatePostsScreen from "./CreatePostsScreen";
@@ -16,6 +18,10 @@ import SvgProfile from "../assets/svg/profileIcon";
 const Tabs = createBottomTabNavigator();
 
 const HomeTabs = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const signOut = () => {
+    dispatch(authSignOutUser());
+  };
   return (
     <Tabs.Navigator>
       <Tabs.Screen
@@ -29,7 +35,10 @@ const HomeTabs = ({ navigation }) => {
           headerRight: () => (
             <TouchableOpacity
               style={{ marginRight: 10 }}
-              onPress={() => navigation.navigate("Login")}
+              onPress={() => {
+                navigation.navigate("Login");
+                signOut();
+              }}
             >
               <Image
                 source={require("../assets/logOut.jpg")}

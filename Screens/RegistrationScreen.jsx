@@ -83,6 +83,7 @@ export default Registrationscreen = ({ navigation }) => {
               </View>
               <View style={{ marginBottom: 16 }}>
                 <TextInput
+                  keyboardType="email-address"
                   placeholder="Адреса електронної пошти"
                   value={state.email}
                   onFocus={() => {
