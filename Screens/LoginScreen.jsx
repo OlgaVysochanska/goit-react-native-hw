@@ -66,6 +66,7 @@ export default LoginScreen = ({ navigation }) => {
                     ...styles.input,
                     borderColor: focusedEmail ? "#FF6C00" : "#E8E8E8",
                   }}
+                  keyboardType="email-address"
                   placeholder="Адреса електронної пошти"
                   value={state.email}
                   onFocus={() => {
