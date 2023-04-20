@@ -3,12 +3,15 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  updateProfile,
   signOut,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
 import { app, db } from "../../firebase/config";
 import { authSlice } from "./authSlice";
+
+const { authSignOut, updateUserProfile, authStateChanged } = authSlice.actions;
 
 export const authSignUpUser =
   ({ email, password, login, photo }) =>
@@ -34,7 +37,7 @@ export const authSignInUser =
 
       const { uid, displayName, photoURL } = auth.currentUser;
       await dispatch(
-        authSlice.actions.updateUserProfile({
+        updateUserProfile({
           userId: uid,
           nickname: displayName,
           photo: photoURL,
@@ -49,6 +52,7 @@ export const authSignOutUser = () => async (dispatch, getState) => {
   try {
     const auth = getAuth(app);
     await signOut(auth);
+    dispatch(authSignOut());
   } catch (error) {
     console.log("error:", error);
   }
@@ -60,13 +64,13 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
     await onAuthStateChanged(auth, async (user) => {
       if (user) {
         await dispatch(
-          authSlice.actions.updateUserProfile({
+          updateUserProfile({
             userId: user.uid,
             login: user.displayName,
             photo: user.photoURL,
           })
         );
-        dispatch(authSlice.actions.authStateChanged({ stateChanged: true }));
+        dispatch(authStateChanged({ stateChanged: true }));
       }
     });
   } catch (error) {
