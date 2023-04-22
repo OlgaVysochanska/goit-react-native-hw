@@ -8,20 +8,58 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+
+import { db } from "../firebase/config";
 
 import SvgMessage from "../assets/svg/messageIcon";
 import SvgMap from "../assets/svg/mapIcon";
 
-const POSTS = [];
-
 export default PostsScreen = ({ navigation, route }) => {
-  const [posts, setPosts] = useState(POSTS);
+  const [posts, setPosts] = useState([]);
+
+  const getAllPosts = async () => {
+    try {
+      const postsRef = await collection(db, "posts");
+      const q = query(postsRef, orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      let posts = [];
+
+      for (const post of snapshot.docs) {
+        const postRef = await doc(db, "posts", post.id);
+        const commentsRef = collection(postRef, "comments");
+        const commentsSnapshot = await getDocs(commentsRef);
+        const commentsCount = commentsSnapshot.size;
+
+        const userRef = doc(db, "users", post.data().userId);
+        const userSnap = await getDoc(userRef);
+
+        posts.push({
+          id: post.id,
+          ...post.data(),
+          commentsCount,
+          nickname: userSnap.data().nickname,
+          email: userSnap.data().email,
+          photoUser: userSnap.data().photoURL,
+        });
+      }
+
+      setPosts(posts);
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
 
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [...prevState, route.params]);
-    }
-  }, [route.params]);
+    getAllPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -30,12 +68,22 @@ export default PostsScreen = ({ navigation, route }) => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={styles.postsContainer}>
+            <View style={styles.userContainer}>
+              <Image
+                source={{ uri: item.photoUser }}
+                style={styles.photoUser}
+              />
+              <View style={styles.infoUser}>
+                <Text style={styles.loginUser}>{item.nickname}</Text>
+                <Text style={styles.emailUser}>{item.email}</Text>
+              </View>
+            </View>
             <Image style={styles.photo} source={{ uri: item.photo }} />
             <Text style={styles.photoName}>{item.photoName}</Text>
             <View style={styles.details}>
               <TouchableOpacity
                 style={{ ...styles.detailsBlock, alignItems: "center" }}
-                // onPress={navigation.navigate("Comments")}
+                onPress={(navigation.navigate("Comments"), { postId: item.id })}
               >
                 <SvgMessage />
                 <Text styles={{ marginLeft: 5 }}>0</Text>
@@ -68,6 +116,23 @@ const styles = StyleSheet.create({
   postsContainer: {
     marginHorizontal: 16,
     marginBottom: 24,
+  },
+  userContainer: {
+    backgroundColor: "#000",
+    padding: 10,
+  },
+  photoUser: {
+    width: 50,
+    height: 50,
+  },
+  infoUser: {
+    color: "#ff0000",
+  },
+  loginUser: {
+    color: "#ff0000",
+  },
+  emailUser: {
+    color: "#ff0000",
   },
   photo: {
     width: "100%",

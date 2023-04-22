@@ -14,7 +14,12 @@ import * as Location from "expo-location";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import { Camera } from "expo-camera";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
+
+import { storage, db } from "../firebase/config";
 
 import SvgCamera from "../assets/svg/cameraIcon";
 
@@ -24,13 +29,16 @@ const CreatePostsScreen = ({ navigation }) => {
   const [hasImagePickerPermission, setImagePickerPermission] = useState(null);
   const [haslocationPermission, setLocationPermission] = useState(null);
 
-  const [photo, setPhoto] = useState(null);
+  const [newPhoto, setNewPhoto] = useState(null);
   const [photoName, setPhotoName] = useState("");
   const [photoLocation, setPhotoLocation] = useState("");
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [location, setLocation] = useState(null);
   const [startCamera, setStartCamera] = useState(null);
   const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [loading, setLoading] = useState(false);
+
+  const { userId, nickname } = useSelector((state) => state.auth);
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
@@ -60,17 +68,17 @@ const CreatePostsScreen = ({ navigation }) => {
       setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted");
       setLocationPermission(locationPermission.status === "granted");
 
-      const location = await Location.getCurrentPositionAsync();
-      setLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+      // const location = await Location.getCurrentPositionAsync();
+      // setLocation({
+      //   latitude: location.coords.latitude,
+      //   longitude: location.coords.longitude,
+      // });
     })();
   }, []);
 
   const makePhoto = async () => {
     const photo = await cameraRef.current.takePictureAsync();
-    setPhoto(photo.uri);
+    setNewPhoto(photo.uri);
     await MediaLibrary.createAssetAsync(photo.uri);
   };
 
@@ -84,15 +92,64 @@ const CreatePostsScreen = ({ navigation }) => {
       });
 
       if (!result.canceled) {
-        setPhoto(result.assets[0].uri);
+        setNewPhoto(result.assets[0].uri);
       }
     } catch (E) {
       console.log(E);
     }
   };
 
+  const uploadPhotoToServer = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(newPhoto);
+      const file = await response.blob();
+      const uniquePhotoId = Date.now().toString();
+
+      const storageRef = ref(storage, `postImage/${uniquePhotoId}`);
+      const result = await uploadBytesResumable(storageRef, file);
+      const processedPhoto = await getDownloadURL(result.ref);
+      return processedPhoto;
+      setLoading(false);
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  const uploadPostToServer = async () => {
+    let locationRes;
+    setLoading(true);
+    const photo = await uploadPhotoToServer();
+    console.log(photo);
+    try {
+      locationRes = await Location.getCurrentPositionAsync({});
+    } catch (error) {
+      console.log("error:", error);
+    }
+    if (!locationRes) {
+      locationRes = { coords: { latitude: 0, longitude: 0 } };
+    }
+    try {
+      const docRef = await addDoc(collection(db, "posts"), {
+        photo,
+        description: photoName,
+        place: photoLocation,
+        userId,
+        nickname,
+        location: {
+          latitude: locationRes.coords.latitude,
+          longitude: locationRes.coords.longitude,
+        },
+        createdAt: Date.now().toString(),
+      });
+    } catch (error) {
+      console.log("error:", error);
+    }
+    setLoading(false);
+  };
+
   const clearPhoto = () => {
-    setPhoto("");
+    setNewPhoto("");
   };
 
   const clearPost = () => {
@@ -102,7 +159,10 @@ const CreatePostsScreen = ({ navigation }) => {
   };
 
   const postPhoto = async () => {
-    navigation.navigate("Posts", { photo, photoName, photoLocation, location });
+    if (newPhoto && photoName && photoLocation) {
+      navigation.navigate("Posts");
+      await uploadPostToServer();
+    }
   };
 
   // const __startCamera = async () => {
@@ -136,9 +196,9 @@ const CreatePostsScreen = ({ navigation }) => {
       >
         {startCamera ? (
           <>
-            {photo ? (
+            {newPhoto ? (
               <View style={styles.photoContainer}>
-                <Image source={{ uri: photo }} style={styles.takenPhoto} />
+                <Image source={{ uri: newPhoto }} style={styles.takenPhoto} />
               </View>
             ) : (
               <Camera style={styles.camera} ref={cameraRef}>
@@ -147,7 +207,7 @@ const CreatePostsScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </Camera>
             )}
-            {photo ? (
+            {newPhoto ? (
               <TouchableOpacity onPress={clearPhoto}>
                 <Text style={styles.editor}>Спробувати ще раз</Text>
               </TouchableOpacity>

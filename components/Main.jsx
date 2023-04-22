@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 
 import { authStateChangeUser } from "../redux/auth/authOperations";
 
-import { useRoute } from "../router";
+import { useRoute } from "../routers/authRouter";
 
 export const Main = () => {
   const dispatch = useDispatch();
