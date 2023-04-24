@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
   ImageBackground,
   TextInput,
   TouchableOpacity,
@@ -11,15 +12,22 @@ import {
   Platform,
   TouchableWithoutFeedback,
 } from "react-native";
-
 import { useDispatch } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
+
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 import { authSignUpUser } from "../redux/auth/authOperations";
+
+import { storage } from "../firebase/config";
+
+import SvgAddAvatar from "../assets/svg/addAvatar";
 
 const initialState = {
   login: "",
   email: "",
   password: "",
+  avatar: "",
 };
 
 export default Registrationscreen = ({ navigation }) => {
@@ -27,6 +35,8 @@ export default Registrationscreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [focused, setFocused] = useState("");
   const [isSecureEntry, setIsSecureEntry] = useState(true);
+  const [selectedImg, setSelectedImg] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -35,12 +45,63 @@ export default Registrationscreen = ({ navigation }) => {
     Keyboard.dismiss();
   };
 
-  const handleSubmit = () => {
+  const downloadPhoto = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setSelectedImg(result.assets[0].uri);
+      }
+    } catch (E) {
+      console.log(E);
+    }
+  };
+
+  const uploadPhotoToServer = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(selectedImg);
+      const file = await response.blob();
+      const uniquePhotoId = Date.now().toString();
+
+      const storageRef = ref(storage, `avatar/${uniquePhotoId}`);
+      const result = await uploadBytesResumable(storageRef, file);
+      const processedPhoto = await getDownloadURL(result.ref);
+      setLoading(false);
+      return processedPhoto;
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  const clearPhoto = () => {
+    setSelectedImg(null);
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
     setIsShowKeyboard(false);
     Keyboard.dismiss();
     console.log(state);
+    if (selectedImg) {
+      const userAvatar = await uploadPhotoToServer();
+      setState((prevstate) => ({
+        ...prevstate,
+        avatar: userAvatar,
+      }));
+      dispatch(authSignUpUser(state));
+      setState(initialState);
+      setLoading(false);
+      return;
+    }
     dispatch(authSignUpUser(state));
     setState(initialState);
+    setLoading(false);
   };
 
   return (
@@ -59,6 +120,29 @@ export default Registrationscreen = ({ navigation }) => {
                 paddingBottom: !isShowKeyboard ? 80 : 32,
               }}
             >
+              <View style={styles.avatarContainer}>
+                {selectedImg ? (
+                  <>
+                    <Image
+                      source={{ uri: selectedImg }}
+                      style={styles.avatar}
+                    />
+                    <TouchableOpacity
+                      style={styles.removeAvatar}
+                      onPress={clearPhoto}
+                    >
+                      <SvgAddAvatar />
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.addAvatar}
+                    onPress={downloadPhoto}
+                  >
+                    <SvgAddAvatar />
+                  </TouchableOpacity>
+                )}
+              </View>
               <Text style={styles.title}>Реєстрація</Text>
 
               <View style={{ marginBottom: 16 }}>
@@ -163,6 +247,35 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "cover",
     justifyContent: "flex-end",
+  },
+  avatarContainer: {
+    position: "absolute",
+    left: "37%",
+    top: -60,
+    width: 120,
+    height: 120,
+    backgroundColor: "#F6F6F6",
+    borderColor: "#E8E8E8",
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  addAvatar: {
+    position: "absolute",
+    left: "85%",
+    top: "65%",
+  },
+  removeAvatar: {
+    position: "absolute",
+    left: "85%",
+    top: "65%",
+    transform: [{ rotate: "45deg" }],
+  },
+  avatar: {
+    maxWidth: "100%",
+    borderRadius: 10,
+    height: 120,
+    width: "100%",
+    resizeMode: "cover",
   },
   formContainer: {
     paddingTop: 92,
