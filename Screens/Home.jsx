@@ -36,7 +36,6 @@ const HomeTabs = ({ navigation }) => {
             <TouchableOpacity
               style={{ marginRight: 10 }}
               onPress={() => {
-                navigation.navigate("Login");
                 signOut();
               }}
             >

@@ -38,7 +38,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [loading, setLoading] = useState(false);
 
-  const { userId, nickname } = useSelector((state) => state.auth);
+  const { nickname, userId } = useSelector((state) => state.auth);
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);

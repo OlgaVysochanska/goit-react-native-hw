@@ -14,15 +14,34 @@ import { authSlice } from "./authSlice";
 const { authSignOut, updateUserProfile, authStateChanged } = authSlice.actions;
 
 export const authSignUpUser =
-  ({ email, password, login, photo }) =>
+  ({ email, login, password, avatar }) =>
   async (dispatch, getState) => {
     try {
       const auth = getAuth(app);
       const user = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(auth.currentUser, {
         displayName: login,
-        photoURL: photo,
+        photoURL: avatar,
       });
+      await onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          await setDoc(doc(db, "users", user.uid), {
+            userId: user.uid,
+            nickname: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            createdAt: Date.now().toString(),
+          });
+        }
+      });
+      const { uid, displayName, photoURL } = auth.currentUser;
+      await dispatch(
+        authSlice.actions.updateUserProfile({
+          userId: uid,
+          nickname: displayName,
+          photo: photoURL,
+        })
+      );
     } catch (error) {
       console.log("error:", error);
     }
@@ -66,7 +85,7 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
         await dispatch(
           updateUserProfile({
             userId: user.uid,
-            login: user.displayName,
+            nickname: user.displayName,
             photo: user.photoURL,
           })
         );

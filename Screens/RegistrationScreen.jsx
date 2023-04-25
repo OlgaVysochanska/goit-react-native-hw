@@ -71,7 +71,7 @@ export default Registrationscreen = ({ navigation }) => {
 
       const storageRef = ref(storage, `avatar/${uniquePhotoId}`);
       const result = await uploadBytesResumable(storageRef, file);
-      const processedPhoto = await getDownloadURL(result.ref);
+      const processedPhoto = await getDownloadURL(storageRef);
       setLoading(false);
       return processedPhoto;
     } catch (error) {
@@ -87,13 +87,16 @@ export default Registrationscreen = ({ navigation }) => {
     setLoading(true);
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    console.log(state);
+    console.log("selected img:", selectedImg);
+
     if (selectedImg) {
       const userAvatar = await uploadPhotoToServer();
-      setState((prevstate) => ({
-        ...prevstate,
+      console.log("user avatar:", userAvatar);
+      setState((prevState) => ({
+        ...prevState,
         avatar: userAvatar,
       }));
+      console.log(state);
       dispatch(authSignUpUser(state));
       setState(initialState);
       setLoading(false);
@@ -219,7 +222,6 @@ export default Registrationscreen = ({ navigation }) => {
                 style={styles.btn}
                 onPress={() => {
                   handleSubmit();
-                  navigation.navigate("Home");
                 }}
               >
                 <Text style={styles.btnTitle}>Зареєструватися</Text>
@@ -304,7 +306,7 @@ const styles = StyleSheet.create({
   passwordTextWrapper: {
     position: "absolute",
     top: "30%",
-    left: "75%",
+    right: 25,
   },
   passwordText: {
     color: "#1B4371",

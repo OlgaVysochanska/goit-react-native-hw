@@ -22,7 +22,7 @@ import { db } from "../firebase/config";
 import SvgMessage from "../assets/svg/messageIcon";
 import SvgMap from "../assets/svg/mapIcon";
 
-export default PostsScreen = ({ navigation, route }) => {
+export default PostsScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
 
   const getAllPosts = async () => {
@@ -65,7 +65,7 @@ export default PostsScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       <FlatList
         data={posts}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.postsContainer}>
             <View style={styles.userContainer}>
