@@ -216,7 +216,6 @@ const CreatePostsScreen = ({ navigation }) => {
                 <Text style={styles.editor}>Завантажити фото</Text>
               </TouchableOpacity>
             )}
-
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : ""}
             >
@@ -247,27 +246,27 @@ const CreatePostsScreen = ({ navigation }) => {
                   value={photoLocation}
                 />
               </View>
-              <TouchableOpacity
-                activeOpacity={0.7}
+            </KeyboardAvoidingView>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={{
+                ...styles.btn,
+                backgroundColor: photoName ? "#FF6C00" : "#F6F6F6",
+              }}
+              onPress={() => {
+                postPhoto();
+                clearPost();
+              }}
+            >
+              <Text
                 style={{
-                  ...styles.btn,
-                  backgroundColor: photoName ? "#FF6C00" : "#F6F6F6",
-                }}
-                onPress={() => {
-                  postPhoto();
-                  clearPost();
+                  ...styles.btnTitle,
+                  color: photoName ? "#fff" : "#BDBDBD",
                 }}
               >
-                <Text
-                  style={{
-                    ...styles.btnTitle,
-                    color: photoName ? "#fff" : "#BDBDBD",
-                  }}
-                >
-                  Опублікувати
-                </Text>
-              </TouchableOpacity>
-            </KeyboardAvoidingView>
+                Опублікувати
+              </Text>
+            </TouchableOpacity>
           </>
         ) : (
           <Text>Немає доступу до камери</Text>
