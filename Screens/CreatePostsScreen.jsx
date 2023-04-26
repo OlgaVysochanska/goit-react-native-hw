@@ -191,86 +191,97 @@ const CreatePostsScreen = ({ navigation }) => {
       <View
         style={{
           ...styles.container,
-          paddingBottom: !isShowKeyboard ? 80 : 32,
         }}
       >
-        {startCamera ? (
-          <>
-            {newPhoto ? (
-              <View style={styles.photoContainer}>
-                <Image source={{ uri: newPhoto }} style={styles.takenPhoto} />
-              </View>
-            ) : (
-              <Camera style={styles.camera} ref={cameraRef}>
-                <TouchableOpacity style={styles.cameraIcon} onPress={makePhoto}>
-                  <SvgCamera />
-                </TouchableOpacity>
-              </Camera>
-            )}
-            {newPhoto ? (
-              <TouchableOpacity onPress={clearPhoto}>
-                <Text style={styles.editor}>Спробувати ще раз</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity onPress={downloadPhoto}>
-                <Text style={styles.editor}>Завантажити фото</Text>
-              </TouchableOpacity>
-            )}
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : ""}
-            >
-              <View
-                style={{
-                  ...styles.form,
-                }}
-              >
-                <TextInput
-                  placeholder="Назва..."
-                  style={styles.input}
-                  onFocus={() => {
-                    setIsShowKeyboard(true);
-                    Keyboard.isVisible();
-                  }}
-                  onChangeText={(value) => {
-                    setPhotoName(value);
-                  }}
-                  value={photoName}
-                />
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : ""}>
+          <View
+            style={{
+              paddingBottom: !isShowKeyboard ? 10 : 32,
+            }}
+          >
+            {startCamera ? (
+              <>
+                {newPhoto ? (
+                  <View style={styles.photoContainer}>
+                    <Image
+                      source={{ uri: newPhoto }}
+                      style={styles.takenPhoto}
+                    />
+                  </View>
+                ) : (
+                  <Camera style={styles.camera} ref={cameraRef}>
+                    <TouchableOpacity
+                      style={styles.cameraIcon}
+                      onPress={makePhoto}
+                    >
+                      <SvgCamera />
+                    </TouchableOpacity>
+                  </Camera>
+                )}
+                {newPhoto ? (
+                  <TouchableOpacity onPress={clearPhoto}>
+                    <Text style={styles.editor}>Спробувати ще раз</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity onPress={downloadPhoto}>
+                    <Text style={styles.editor}>Завантажити фото</Text>
+                  </TouchableOpacity>
+                )}
 
-                <TextInput
-                  placeholder="Локація..."
-                  style={{ ...styles.input, marginTop: 32 }}
-                  onChangeText={(value) => {
-                    setPhotoLocation(value);
+                <View
+                  style={{
+                    ...styles.form,
                   }}
-                  value={photoLocation}
-                />
-              </View>
-            </KeyboardAvoidingView>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={{
-                ...styles.btn,
-                backgroundColor: photoName ? "#FF6C00" : "#F6F6F6",
-              }}
-              onPress={() => {
-                postPhoto();
-                clearPost();
-              }}
-            >
-              <Text
-                style={{
-                  ...styles.btnTitle,
-                  color: photoName ? "#fff" : "#BDBDBD",
-                }}
-              >
-                Опублікувати
-              </Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <Text>Немає доступу до камери</Text>
-        )}
+                >
+                  <TextInput
+                    placeholder="Назва..."
+                    style={styles.input}
+                    onFocus={() => {
+                      setIsShowKeyboard(true);
+                      Keyboard.isVisible();
+                    }}
+                    onChangeText={(value) => {
+                      setPhotoName(value);
+                    }}
+                    value={photoName}
+                  />
+
+                  <TextInput
+                    placeholder="Локація..."
+                    style={{ ...styles.input, marginTop: 32 }}
+                    onChangeText={(value) => {
+                      setPhotoLocation(value);
+                    }}
+                    value={photoLocation}
+                  />
+                </View>
+
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={{
+                    ...styles.btn,
+                    backgroundColor: photoName ? "#FF6C00" : "#F6F6F6",
+                  }}
+                  onPress={() => {
+                    postPhoto();
+                    clearPost();
+                  }}
+                >
+                  <Text
+                    style={{
+                      ...styles.btnTitle,
+                      color: photoName ? "#fff" : "#BDBDBD",
+                    }}
+                  >
+                    Опублікувати
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <Text>Немає доступу до камери</Text>
+            )}
+          </View>
+        </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -280,10 +291,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    justifyContent: "center",
   },
   camera: {
     marginHorizontal: 16,
     marginTop: 32,
+    borderRadius: 10,
     height: 240,
     justifyContent: "center",
     alignItems: "center",

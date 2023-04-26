@@ -89,21 +89,24 @@ export default Registrationscreen = ({ navigation }) => {
     Keyboard.dismiss();
     console.log("selected img:", selectedImg);
 
-    if (selectedImg) {
-      const userAvatar = await uploadPhotoToServer();
-      console.log("user avatar:", userAvatar);
-      setState((prevState) => ({
-        ...prevState,
-        avatar: userAvatar,
-      }));
+    if (!selectedImg) {
       console.log(state);
-      dispatch(authSignUpUser(state));
-      setState(initialState);
-      setLoading(false);
+      await dispatch(authSignUpUser(state));
+      await setState(initialState);
+      console.log(state);
       return;
     }
-    dispatch(authSignUpUser(state));
-    setState(initialState);
+    const userAvatar = await uploadPhotoToServer();
+    console.log("user avatar:", userAvatar);
+    await setState((prevState) => ({
+      ...prevState,
+      avatar: userAvatar,
+    }));
+    console.log(state);
+    await dispatch(authSignUpUser(state));
+    await setState(initialState);
+    console.log(state);
+
     setLoading(false);
   };
 

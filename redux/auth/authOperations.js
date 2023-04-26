@@ -97,16 +97,31 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
   }
 };
 
-// export const authEditUser = () => async (dispatch, getState) => {
-//   try {
-//     const auth = getAuth(app);
-//     await onAuthStateChanged(auth, async (user) => {
-//       if (user) {
-//         const useRef = await doc(db, "users", user.uid);
-//         await setDoc(userRef, { photoURL: photo }, { merge: true });
-//       }
-//     });
-//   } catch (error) {
-//     console.log("error:", error);
-//   }
-// };
+export const authEditProfile =
+  ({ photo }) =>
+  async (dispatch) => {
+    try {
+      const auth = getAuth(app);
+      await updateProfile(auth.currentUser, {
+        photoURL: photo,
+      });
+
+      await onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const userRef = await doc(db, "users", user.uid);
+          await setDoc(userRef, { photoURL: photo }, { merge: true });
+        }
+      });
+
+      const { uid, displayName, photoURL } = auth.currentUser;
+      await dispatch(
+        authSlice.actions.updateUserProfile({
+          userId: uid,
+          nickname: displayName,
+          photo: photoURL,
+        })
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
