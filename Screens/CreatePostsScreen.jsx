@@ -9,6 +9,7 @@ import {
   Keyboard,
   Platform,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import * as Location from "expo-location";
 import * as MediaLibrary from "expo-media-library";
@@ -67,12 +68,6 @@ const CreatePostsScreen = ({ navigation }) => {
 
       setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted");
       setLocationPermission(locationPermission.status === "granted");
-
-      // const location = await Location.getCurrentPositionAsync();
-      // setLocation({
-      //   latitude: location.coords.latitude,
-      //   longitude: location.coords.longitude,
-      // });
     })();
   }, []);
 
@@ -160,19 +155,10 @@ const CreatePostsScreen = ({ navigation }) => {
 
   const postPhoto = async () => {
     if (newPhoto && photoName && photoLocation) {
-      navigation.navigate("Posts");
       await uploadPostToServer();
+      navigation.navigate("Posts");
     }
   };
-
-  // const __startCamera = async () => {
-  //   const { status } = await Camera.requestCameraPermissionsAsync();
-  //   if (status === "granted") {
-  //     setStartCamera(true);
-  //   } else {
-  //     Alert.alert("Access denied");
-  //   }
-  // };
 
   if (hasMediaLibraryPermission === false) {
     return <Text>Немає доступу до галереї</Text>;
@@ -193,6 +179,11 @@ const CreatePostsScreen = ({ navigation }) => {
           ...styles.container,
         }}
       >
+        {loading && (
+          <View style={styles.activityIndicatorContainer}>
+            <ActivityIndicator size="large" color="#FF6C00" />
+          </View>
+        )}
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : ""}>
           <View
             style={{
@@ -356,6 +347,17 @@ const styles = StyleSheet.create({
   btnTitle: {
     fontFamily: "Roboto-Regular",
     fontSize: 16,
+  },
+  activityIndicatorContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    zIndex: 9,
   },
 });
 

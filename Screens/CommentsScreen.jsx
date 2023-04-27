@@ -100,7 +100,7 @@ const CommentsScreen = ({ route }) => {
         id: comment.id,
         comment: comment.data().comment,
         createdAt: comment.data().createdAt,
-        photoUser: userSnap.data().photoURL,
+        photo: userSnap.data().photoURL,
         login: userSnap.data().nickname,
       });
     }
@@ -127,8 +127,6 @@ const CommentsScreen = ({ route }) => {
             <Text style={styles.avatarText}>{item.login.split("")[0]}</Text>
           </View>
         )}
-
-        <Image source={{ uri: item.photo }} style={styles.photoUser} />
       </View>
       <View style={styles.textComment}>
         <Text
@@ -167,36 +165,37 @@ const CommentsScreen = ({ route }) => {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
         />
-
-        <KeyboardAvoidingView
-          behavior={Platform.OS == "ios" ? "padding" : "height"}
-        >
+        <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
           <View
             style={{
-              ...styles.input,
-              borderColor: isFocus ? `#FF6C00` : `#E8E8E8`,
+              paddingBottom: !isShowKeyboard ? 5 : 200,
             }}
           >
-            <TextInput
-              style={styles.inputText}
-              onFocus={() => {
-                setIsShowKeyboard(true);
-                setIsFocus(true);
+            <View
+              style={{
+                ...styles.input,
+                borderColor: isFocus ? `#FF6C00` : `#E8E8E8`,
               }}
-              onBlur={() => {
-                setIsFocus(false);
-              }}
-              placeholder="Прокоментувати..."
-              value={comment}
-              onChangeText={(value) => {
-                setComment(value);
-              }}
-            />
-            <TouchableOpacity style={styles.sendGroup} onPress={createComment}>
-              <View style={styles.sendIcon}>
-                <Feather name="arrow-up" size={24} color="#fff" />
-              </View>
-            </TouchableOpacity>
+            >
+              <TextInput
+                style={styles.inputText}
+                onBlur={keyboardHide}
+                onFocus={() => setIsShowKeyboard(true)}
+                placeholder="Прокоментувати..."
+                value={comment}
+                onChangeText={(value) => {
+                  setComment(value);
+                }}
+              />
+              <TouchableOpacity
+                style={styles.sendGroup}
+                onPress={createComment}
+              >
+                <View style={styles.sendIcon}>
+                  <Feather name="arrow-up" size={24} color="#fff" />
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
         </KeyboardAvoidingView>
       </View>
@@ -208,16 +207,15 @@ const styles = StyleSheet.create({
   form: {
     marginHorizontal: 16,
     flex: 1,
-    marginTop: 32,
+    marginTop: 10,
   },
   postImage: {
     height: 240,
     width: "100%",
     borderRadius: 8,
-    marginBottom: 30,
+    marginBottom: 20,
   },
   input: {
-    display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",

@@ -8,7 +8,6 @@ const MapScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <Text>Map Screen</Text>
-      <Text>{latitude}</Text>
       <MapView
         style={styles.mapStyle}
         mapType="standard"

@@ -93,7 +93,7 @@ export default LoginScreen = ({ navigation }) => {
                     setFocusedPassword(true);
                   }}
                   onBlur={() => setFocusedPassword(false)}
-                  secureTextEntry={true}
+                  secureTextEntry={isSecureEntry}
                   onChangeText={(value) =>
                     setState((prevState) => ({ ...prevState, password: value }))
                   }

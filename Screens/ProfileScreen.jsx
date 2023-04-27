@@ -29,7 +29,7 @@ import SvgAddAvatar from "../assets/svg/addAvatar";
 import SvgMessage from "../assets/svg/messageIcon";
 import SvgMap from "../assets/svg/mapIcon";
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [selectedImg, setSelectedImg] = useState(null);
   const [currentAvatar, setCurrentAvatar] = useState(null);
@@ -191,7 +191,9 @@ const ProfileScreen = () => {
                       }}
                     >
                       <SvgMessage />
-                      <Text styles={{ marginLeft: 5 }}>{commentsCount}</Text>
+                      <Text styles={{ marginLeft: 5 }}>
+                        {item.commentsCount}
+                      </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.detailsBlock}
@@ -222,7 +224,6 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   imageBackground: {
     flex: 1,
@@ -230,7 +231,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   profileContainer: {
-    paddingTop: 92,
+    flex: 1,
+    marginTop: 120,
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
@@ -306,7 +308,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 30,
+    marginTop: 90,
     marginBottom: 30,
   },
   noPostsText: {

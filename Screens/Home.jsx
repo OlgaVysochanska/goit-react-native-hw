@@ -67,7 +67,8 @@ const HomeTabs = ({ navigation }) => {
       />
       <Tabs.Screen
         options={{
-          title: "Профіль",
+          headerShown: false,
+
           tabBarIcon: ({ color, size }) => (
             <SvgProfile color={color} size={size} />
           ),

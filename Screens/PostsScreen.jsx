@@ -7,6 +7,7 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import {
   collection,
@@ -24,8 +25,10 @@ import SvgMap from "../assets/svg/mapIcon";
 
 export default PostsScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const getAllPosts = async () => {
+    setLoading(true);
     try {
       const postsRef = await collection(db, "posts");
       const q = query(postsRef, orderBy("createdAt", "desc"));
@@ -45,6 +48,7 @@ export default PostsScreen = ({ navigation }) => {
           id: post.id,
           ...post.data(),
           commentsCount,
+
           nickname: userSnap.data().nickname,
           email: userSnap.data().email,
           photoUser: userSnap.data().photoURL,
@@ -52,7 +56,9 @@ export default PostsScreen = ({ navigation }) => {
       }
 
       setPosts(posts);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log("Error", error);
     }
   };
@@ -63,6 +69,11 @@ export default PostsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {loading && (
+        <View style={styles.activityIndicatorContainer}>
+          <ActivityIndicator size="large" color="#FF6C00" />
+        </View>
+      )}
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
@@ -96,12 +107,12 @@ export default PostsScreen = ({ navigation }) => {
                 }}
               >
                 <SvgMessage />
-                <Text styles={{ marginLeft: 5 }}>0</Text>
+                <Text styles={{ marginLeft: 5 }}>{item.commentsCount}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.detailsBlock}
                 onPress={() => {
-                  const location = item.place;
+                  const location = item.location;
                   const photoName = item.description;
                   navigation.navigate("Map", { location, photoName });
                 }}
@@ -122,7 +133,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ecf0f1",
   },
-
+  activityIndicatorContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    zIndex: 9,
+  },
   postsContainer: {
     marginHorizontal: 16,
     marginBottom: 24,

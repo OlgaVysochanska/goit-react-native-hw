@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -28,6 +28,7 @@ const initialState = {
   email: "",
   password: "",
   avatar: "",
+  isReady: "",
 };
 
 export default Registrationscreen = ({ navigation }) => {
@@ -39,6 +40,12 @@ export default Registrationscreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (state.email && state.login && state.password) {
+      dispatch(authSignUpUser(state));
+    }
+  }, [state.isReady]);
 
   const keyboardHide = () => {
     setIsShowKeyboard(false);
@@ -87,28 +94,59 @@ export default Registrationscreen = ({ navigation }) => {
     setLoading(true);
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    console.log("selected img:", selectedImg);
 
-    if (!selectedImg) {
-      console.log(state);
-      await dispatch(authSignUpUser(state));
-      await setState(initialState);
-      console.log(state);
-      return;
+    if (state.email && state.login && state.password) {
+      if (selectedImg) {
+        const photoSt = await uploadPhotoToServer();
+        setState((prevState) => ({
+          ...prevState,
+          avatar: photoSt,
+          isReady: true,
+        }));
+        setLoading(false);
+        setState(initialState);
+        return;
+      } else {
+        await dispatch(authSignUpUser(state));
+        setState(initialState);
+      }
+    } else {
+      console.log("error:");
     }
-    const userAvatar = await uploadPhotoToServer();
-    console.log("user avatar:", userAvatar);
-    await setState((prevState) => ({
-      ...prevState,
-      avatar: userAvatar,
-    }));
-    console.log(state);
-    await dispatch(authSignUpUser(state));
-    await setState(initialState);
-    console.log(state);
 
     setLoading(false);
   };
+
+  async function submitForm() {
+    setLoading(true);
+    if (
+      dataRegistration.email &&
+      dataRegistration.login &&
+      dataRegistration.password
+    ) {
+      if (temtUserPhoto) {
+        const photoSt = await uploadPhotoToServer();
+        setDataRegistration((prevState) => ({
+          ...prevState,
+          photo: photoSt,
+          isReady: true,
+        }));
+        setLoading(false);
+        setDataRegistration(initialState);
+        return;
+      } else {
+        await dispatch(authSignUp(dataRegistration));
+        setDataRegistration(initialState);
+      }
+    } else {
+      dispatch(
+        authSlice.actions.authSetError({
+          errorMessage: "Please fill in all fields.",
+        })
+      );
+    }
+    setLoading(false);
+  }
 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
